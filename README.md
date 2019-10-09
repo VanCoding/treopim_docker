@@ -16,7 +16,15 @@ $ docker-compose up -d
 
 It will start two containers: A MySQL instance and an apache with Treo PIM. The Data for the MySQL database is stored in the directory `mysql_data` which is created in the root directory of your repository.
 
-After starting Treo PIM you need to go through the installation wizard at [http://localhost:8080/](http://localhost:8080/). There you enter following data:
+After starting the containers using the commands above, you'll have to first run the following command:
+
+```
+docker exec -it treopim chown -R www-data:www-data data
+```
+
+This will allow treo access to the data directory.
+
+After this you need to go through the installation wizard at [http://localhost:8080/](http://localhost:8080/). There you enter following data:
 
 - db host: mysqldb
 - db name: treo
@@ -47,7 +55,7 @@ To reset everything and start over run following commands:
 
 ```
 $ docker-compose down
-$ rm -rf ./mysql_data
+$ rm -rf ./mysql_data/** ./treo_data/**
 $ docker-compose up -d --build
 ```
 
@@ -56,9 +64,5 @@ $ docker-compose up -d --build
 Use following command to run a bash inside the PIM container:
 
 ```
-docker exec -it treopim_docker_treopim_1 /bin/bash
+docker exec -it treopim /bin/bash
 ```
-
-# TODO
-
-We need a solution for cron jobs as it is not usual to run a cron daemon in a docker container.

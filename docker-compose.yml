@@ -1,17 +1,21 @@
 version: '3'
 services:
   treopim:
+    container_name: treopim
     build: ./
     ports:
      - "8080:80"
     links:
      - "mysqldb"
+    volumes:
+      - "./treo_data:/var/www/html/data"
 
   mysqldb:
+    container_name: treopim_mysql
     image: "mysql:5"
     ports:
      - "3306:3306"
-    volumes: 
+    volumes:
       - "./mysql_data:/var/lib/mysql"
     environment:
       - "MYSQL_ROOT_HOST=%"

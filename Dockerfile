@@ -1,4 +1,4 @@
-FROM php:7.1-apache
+FROM php:7.2-apache
 
 EXPOSE 80
 
@@ -7,7 +7,10 @@ RUN apt-get update && apt-get install --no-install-recommends -y \
         libjpeg62-turbo-dev \
         libpng-dev \
         libldap2-dev \
+        zip \
+        unzip \
         git \
+        cron \
         && rm -rf /var/lib/apt/lists/*
 RUN a2enmod rewrite
 
@@ -30,15 +33,9 @@ COPY ./composer.phar /usr/local/bin/composer
 RUN chmod +x /usr/local/bin/composer
 WORKDIR /var/www/html/
 
-RUN composer create-project treolabs/treocore ./
-
-# Set permissions for directory /data /custom /client/custom /application
-RUN mkdir ./client/custom\
-find . -type d -exec chmod 755 {} + && find . -type f -exec chmod 644 {} +;\
-find data custom client/custom -type d -exec chmod 775 {} + && find data custom client/custom -type f -exec chmod 664 {} +;\
-chmod 775 application/Espo/Modules client/modules;
-RUN chown -R www-data:www-data .
-
-# install module PIM
-RUN /usr/local/bin/php console.php composer require treo-module/pim
-RUN /usr/local/bin/php composer.phar update
+RUN composer create-project treolabs/skeleton ./ --no-dev
+RUN chown -R www-data:www-data ./
+RUN chmod +x ./bin/*.sh
+RUN printf '* * * * * cd /var/www; ./bin/cron.sh process-treocore /usr/local/bin/php\n' | crontab -u www-data -
+COPY ./entrypoint.sh /
+ENTRYPOINT /entrypoint.sh
